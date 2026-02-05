@@ -5,6 +5,7 @@
 const App = {
     DESKTOP_MIN_WIDTH: 1024,
     pythonWindowOpen: false,
+    editorWindowOpen: false,
 
     /**
      * Initialize the application
@@ -12,6 +13,7 @@ const App = {
     init() {
         DebugLogger.init();
         DebugLogger.log('Application initialized');
+
         this.checkDesktop();
         this.setupEventListeners();
 
@@ -43,9 +45,14 @@ const App = {
      */
     setupEventListeners() {
         const openPythonBtn = document.getElementById('open-python-btn');
+        const openEditorBtn = document.getElementById('open-editor-btn');
 
         openPythonBtn.addEventListener('click', () => {
             this.openPythonWindow();
+        });
+
+        openEditorBtn.addEventListener('click', () => {
+            this.openEditorWindow();
         });
     },
 
@@ -82,6 +89,46 @@ const App = {
                 // Use setTimeout to ensure the window is rendered and interactive first
                 setTimeout(async () => {
                     await PythonREPL.init(container);
+                }, 0);
+            }
+        });
+    },
+
+    /**
+     * Open a Python editor window
+     */
+    openEditorWindow() {
+        if (this.editorWindowOpen) {
+            return;
+        }
+
+        this.editorWindowOpen = true;
+        DebugLogger.log('Opening Editor window...');
+
+        const btn = document.getElementById('open-editor-btn');
+        btn.disabled = true;
+
+        WindowManager.createWindow({
+            title: 'Python Editor',
+            width: 800,
+            height: 500,
+            onClose: () => {
+                this.editorWindowOpen = false;
+                DebugLogger.log('Editor window closed');
+                PythonEditor.destroy();
+                btn.disabled = false;
+            },
+            onReady: async (container) => {
+                setTimeout(() => {
+                    const defaultEditorText = `# Write Python here
+`;
+                    PythonEditor.init(container, {
+                        initialText: defaultEditorText,
+                        storageKey: 'pythonEditorCode',
+                        onRun: async () => {
+                            await PythonOutput.run(PythonEditor.getValue());
+                        }
+                    });
                 }, 0);
             }
         });

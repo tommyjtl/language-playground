@@ -16,7 +16,7 @@ const PythonREPL = {
     async init(container) {
         return new Promise((resolve, reject) => {
             // Create worker
-            DebugLogger.updateWorkerStatus('Creating worker...');
+            DebugLogger.updateReplWorkerStatus('Creating worker...');
             this.worker = new Worker('js/pyodide-worker.js', { type: 'module' });
 
             // Update loading message
@@ -34,13 +34,12 @@ const PythonREPL = {
                         if (loadingDiv) {
                             loadingDiv.textContent = message;
                         }
-                        DebugLogger.updatePythonStatus(message);
+                        DebugLogger.updateReplWorkerStatus(message);
                         break;
 
                     case 'ready':
                         this.isLoaded = true;
-                        DebugLogger.updateWorkerStatus('Worker ready');
-                        DebugLogger.updatePythonStatus('Ready');
+                        DebugLogger.updateReplWorkerStatus('Ready');
                         this.initTerminal(container, banner);
                         resolve();
                         break;
@@ -58,6 +57,7 @@ const PythonREPL = {
                         if (this.term) {
                             this.term.error(message);
                         } else {
+                            DebugLogger.log(`[REPL] Failed - ${message}`);
                             reject(new Error(message));
                         }
                         break;
@@ -165,7 +165,7 @@ const PythonREPL = {
         if (this.worker) {
             this.worker.terminate();
             this.worker = null;
-            DebugLogger.updateWorkerStatus('Terminated');
+            DebugLogger.updateReplWorkerStatus('Terminated');
         }
         if (this.term) {
             this.term.destroy();

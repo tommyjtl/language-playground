@@ -16,13 +16,18 @@ const WindowManager = {
             title = 'Window',
             width = 700,
             height = 450,
+            x = null,
+            y = null,
+            draggable = true,
+            resizable = true,
+            controls = true,
             onClose = null,
             onReady = null
         } = options;
 
-        // Calculate center position
-        const x = (window.innerWidth - width) / 4;
-        const y = (window.innerHeight - height) / 4;
+        // Calculate center position if not provided
+        const posX = x !== null ? x : (window.innerWidth - width) / 4;
+        const posY = y !== null ? y : (window.innerHeight - height) / 4;
 
         // Create window element
         const windowEl = document.createElement('div');
@@ -30,17 +35,28 @@ const WindowManager = {
         windowEl.id = `window-${++this.windowCount}`;
         windowEl.style.width = `${width}px`;
         windowEl.style.height = `${height}px`;
-        windowEl.style.left = `${x}px`;
-        windowEl.style.top = `${y}px`;
+        windowEl.style.left = `${posX}px`;
+        windowEl.style.top = `${posY}px`;
         windowEl.style.zIndex = 1000 + this.windowCount;
 
-        windowEl.innerHTML = `
-      <div class="window-titlebar">
+        // Build window HTML with conditional controls and resize handles
+        const controlsHTML = controls ? `
         <div class="window-controls">
           <button class="window-btn-close group relative flex items-center justify-center w-3 h-3 rounded-full bg-red-500 hover:bg-red-500 active:bg-red-700 border-0 cursor-pointer transition-colors" title="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="opacity-0 group-hover:opacity-100 text-white transition-opacity"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
+        ` : '';
+
+        const resizeHandlesHTML = resizable ? `
+      <div class="resize-handle resize-handle-e"></div>
+      <div class="resize-handle resize-handle-s"></div>
+      <div class="resize-handle resize-handle-se"></div>
+        ` : '';
+
+        windowEl.innerHTML = `
+      <div class="window-titlebar" ${!draggable ? 'style="cursor: default;"' : ''}>
+        ${controlsHTML}
         <span class="window-title">${title}</span>
       </div>
       <div class="window-content">
@@ -49,13 +65,16 @@ const WindowManager = {
           <span>Loading...</span>
         </div>
       </div>
-      <div class="resize-handle resize-handle-e"></div>
-      <div class="resize-handle resize-handle-s"></div>
-      <div class="resize-handle resize-handle-se"></div>
+      ${resizeHandlesHTML}
     `;
 
         // Add to container
         document.getElementById('window-container').appendChild(windowEl);
+
+        windowEl.addEventListener('mousedown', () => {
+            this.activeWindow = windowEl;
+            windowEl.style.zIndex = 1000 + (++this.windowCount);
+        });
 
         // Setup event listeners
         this.setupDragging(windowEl);
@@ -179,6 +198,8 @@ const WindowManager = {
      */
     setupClose(windowEl, onClose) {
         const closeBtn = windowEl.querySelector('.window-btn-close');
+
+        if (!closeBtn) return; // No close button exists
 
         closeBtn.addEventListener('click', () => {
             if (onClose) {

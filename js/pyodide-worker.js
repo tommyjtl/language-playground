@@ -13,11 +13,11 @@ async function loadPyodideInstance() {
     const indexURL = 'https://cdn.jsdelivr.net/pyodide/v0.27.5/full/';
 
     try {
-        self.postMessage({ type: 'status', message: 'Loading Python runtime...' });
+        self.postMessage({ type: 'status', message: 'Fetching pyodide.mjs...' });
 
         const { loadPyodide } = await import(indexURL + 'pyodide.mjs');
 
-        self.postMessage({ type: 'status', message: 'Initializing Python...' });
+        self.postMessage({ type: 'status', message: 'Initializing Python runtime...' });
 
         pyodide = await loadPyodide({
             indexURL: indexURL,
