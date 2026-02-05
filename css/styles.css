@@ -1,0 +1,128 @@
+/* Base Font */
+body {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Monospace Font */
+.font-mono,
+code,
+pre,
+.terminal {
+    font-family: "Google Sans Code", monospace !important;
+}
+
+/* Window Styles */
+.window {
+    position: absolute;
+    background: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.window-titlebar {
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 14px;
+    user-select: none;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.window-titlebar:active {
+    cursor: grabbing;
+}
+
+.window-controls {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.window-title {
+    color: #000;
+    font-size: 13px;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    font-weight: 500;
+    flex: 1;
+    margin: 0;
+}
+
+.window-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: #1e1e1e;
+}
+
+/* Resize Handles */
+.resize-handle {
+    position: absolute;
+    background: transparent;
+}
+
+.resize-handle-e {
+    right: 0;
+    top: 0;
+    width: 6px;
+    height: 100%;
+    cursor: ew-resize;
+}
+
+.resize-handle-s {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    cursor: ns-resize;
+}
+
+.resize-handle-se {
+    right: 0;
+    bottom: 0;
+    width: 12px;
+    height: 12px;
+    cursor: nwse-resize;
+}
+
+/* Terminal Styles */
+.window-content .terminal {
+    height: 100%;
+    --size: 1.1;
+    --color: rgba(255, 255, 255, 0.8);
+    cursor: text;
+}
+
+.window-content .terminal .terminal-output {
+    /* padding: 8px; */
+    cursor: text;
+}
+
+/* Loading Spinner */
+.terminal-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #ccc;
+}
+
+.terminal-loading .spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(172, 237, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 12px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
