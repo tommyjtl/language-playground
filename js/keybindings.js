@@ -94,4 +94,4 @@ class KeyBindings {
     }
 }
 
-window.KeyBindings = KeyBindings;
+export default KeyBindings;

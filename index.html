@@ -53,14 +53,20 @@
     <div id="main-content" class="w-screen h-screen p-4 relative">
         <div class="mb-4">
             <button id="open-python-btn"
-                class="rounded-sm text-sm border border-black bg-white text-black px-4 py-2 cursor-pointer transition-all duration-200 inline-flex items-center gap-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
-                style="font-weight: 500;">
+                class="rounded-sm text-sm border font-medium border-black bg-white text-black px-2 py-1 cursor-pointer transition-all duration-200 inline-flex items-center gap-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white">
                 <span>Open Python REPL</span>
             </button>
             <button id="open-editor-btn"
-                class="rounded-sm text-sm border border-black bg-white text-black px-4 py-2 cursor-pointer transition-all duration-200 inline-flex items-center gap-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white ml-2"
-                style="font-weight: 500;">
+                class="rounded-sm text-sm border font-medium border-black bg-white text-black px-2 py-1 cursor-pointer transition-all duration-200 inline-flex items-center gap-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white ml-2">
                 <span>Open Editor</span>
+            </button>
+            <button id="open-ts-repl-btn"
+                class="rounded-sm text-sm border font-medium border-black bg-white text-black px-2 py-1 cursor-pointer transition-all duration-200 inline-flex items-center gap-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white ml-2">
+                <span>Open TypeScript REPL</span>
+            </button>
+            <button id="open-ts-editor-btn"
+                class="rounded-sm text-sm border font-medium border-black bg-white text-black px-2 py-1 cursor-pointer transition-all duration-200 inline-flex items-center gap-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white ml-2">
+                <span>Open TypeScript Editor</span>
             </button>
         </div>
     </div>
@@ -70,14 +76,19 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-noconflict/ace.js"></script>
-    <script src="js/debug-logger.js"></script>
-    <script src="js/window-manager.js"></script>
-    <script src="js/python-repl.js"></script>
-    <script src="js/code-storage.js"></script>
-    <script src="js/keybindings.js"></script>
-    <script src="js/python-editor.js"></script>
-    <script src="js/python-output.js"></script>
-    <script src="js/main.js"></script>
+    <script type="module" src="js/debug-logger.js"></script>
+    <script type="module" src="js/window-manager.js"></script>
+    <script type="module" src="js/code-storage.js"></script>
+    <script type="module" src="js/keybindings.js"></script>
+    <!-- pydiode -->
+    <script type="module" src="js/pydiode/python-repl.js"></script>
+    <script type="module" src="js/pydiode/python-editor.js"></script>
+    <script type="module" src="js/pydiode/python-output.js"></script>
+    <!-- tyepscript -->
+    <script type="module" src="js/typescript/typescript-repl.js"></script>
+    <script type="module" src="js/typescript/typescript-editor.js"></script>
+    <script type="module" src="js/typescript/typescript-output.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 
 </html>

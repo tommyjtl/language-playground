@@ -47,7 +47,7 @@ pre,
     color: #000;
     font-size: 13px;
     font-family: "Inter", system-ui, -apple-system, sans-serif;
-    font-weight: 500;
+    font-weight: 600;
     flex: 1;
     margin: 0;
 }
@@ -158,6 +158,48 @@ pre,
 .editor-status.status-not-ready,
 .output-status.status-not-ready {
     color: #dc2626;
+}
+
+/* Worker Status Styles */
+.worker-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+}
+
+.worker-status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.worker-status.status-ready {
+    color: #16a34a;
+    /* green-600 */
+}
+
+.worker-status.status-initializing {
+    color: #d97706;
+    /* amber-600 */
+}
+
+.worker-status.status-loading {
+    color: #d97706;
+    /* amber-600 */
+}
+
+.worker-status.status-error {
+    color: #dc2626;
+    /* red-600 */
+}
+
+.worker-status.status-not-initialized {
+    color: #9ca3af;
+    /* gray-400 */
 }
 
 .editor-host {

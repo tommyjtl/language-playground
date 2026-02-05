@@ -18,9 +18,13 @@ const WindowManager = {
             height = 450,
             x = null,
             y = null,
+            minWidth = width,
+            minHeight = height,
             draggable = true,
             resizable = true,
             controls = true,
+            minimizable = false,
+            minimized = false,
             onClose = null,
             onReady = null
         } = options;
@@ -42,8 +46,16 @@ const WindowManager = {
         // Build window HTML with conditional controls and resize handles
         const controlsHTML = controls ? `
         <div class="window-controls">
-          <button class="window-btn-close group relative flex items-center justify-center w-3 h-3 rounded-full bg-red-500 hover:bg-red-500 active:bg-red-700 border-0 cursor-pointer transition-colors" title="Close">
+          <button class="window-btn window-btn-close group relative flex items-center justify-center w-3 h-3 rounded-full bg-red-500 hover:bg-red-500 active:bg-red-700 border-0 cursor-pointer transition-colors" title="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="opacity-0 group-hover:opacity-100 text-white transition-opacity"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        ` : '';
+
+        const minimizeHTML = minimizable ? `
+        <div class="window-controls-right">
+          <button class="window-btn window-btn-minimize group relative flex items-center justify-center w-4 h-4 border-0 cursor-pointer transition-opacity text-gray-700 hover:opacity-60" title="Minimize">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minus-icon lucide-minus"><path d="M5 12h14"/></svg>
           </button>
         </div>
         ` : '';
@@ -58,6 +70,7 @@ const WindowManager = {
       <div class="window-titlebar" ${!draggable ? 'style="cursor: default;"' : ''}>
         ${controlsHTML}
         <span class="window-title">${title}</span>
+        ${minimizeHTML}
       </div>
       <div class="window-content">
         <div class="terminal-loading">
@@ -78,8 +91,15 @@ const WindowManager = {
 
         // Setup event listeners
         this.setupDragging(windowEl);
-        this.setupResizing(windowEl);
-        this.setupClose(windowEl, onClose);
+        if (resizable) {
+            this.setupResizing(windowEl, minWidth, minHeight);
+        }
+        if (controls) {
+            this.setupClose(windowEl, onClose);
+        }
+        if (minimizable) {
+            this.setupMinimize(windowEl, { minimized });
+        }
 
         this.activeWindow = windowEl;
 
@@ -100,7 +120,7 @@ const WindowManager = {
         let startX, startY, startLeft, startTop;
 
         titlebar.addEventListener('mousedown', (e) => {
-            if (e.target.classList.contains('window-btn')) return;
+            if (e.target.closest && e.target.closest('.window-btn')) return;
 
             isDragging = true;
             startX = e.clientX;
@@ -138,10 +158,10 @@ const WindowManager = {
     /**
      * Setup resizing functionality
      * @param {HTMLElement} windowEl - The window element
+     * @param {number} minWidth - Minimum window width
+     * @param {number} minHeight - Minimum window height
      */
-    setupResizing(windowEl) {
-        const minWidth = 400;
-        const minHeight = 300;
+    setupResizing(windowEl, minWidth, minHeight) {
 
         const handles = windowEl.querySelectorAll('.resize-handle');
         let isResizing = false;
@@ -192,6 +212,59 @@ const WindowManager = {
     },
 
     /**
+     * Setup minimize functionality
+     * @param {HTMLElement} windowEl - The window element
+     * @param {Object} options - Minimize options
+     */
+    setupMinimize(windowEl, options = {}) {
+        const { minimized = false } = options;
+        const titlebar = windowEl.querySelector('.window-titlebar');
+        const content = windowEl.querySelector('.window-content');
+        const minimizeBtn = windowEl.querySelector('.window-btn-minimize');
+        const resizeHandles = windowEl.querySelectorAll('.resize-handle');
+
+        if (!titlebar || !content || !minimizeBtn) {
+            return;
+        }
+
+        const updateMinimizeIcon = (isMinimized) => {
+            minimizeBtn.innerHTML = isMinimized
+                ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-expand-icon lucide-expand"><path d="m15 15 6 6"/><path d="m15 9 6-6"/><path d="M21 16v5h-5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="m3 21 6-6"/><path d="M3 8V3h5"/><path d="M9 9 3 3"/></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minus-icon lucide-minus"><path d="M5 12h14"/></svg>`;
+            minimizeBtn.title = isMinimized ? 'Restore' : 'Minimize';
+        };
+
+        const setMinimized = (isMinimized) => {
+            windowEl.dataset.minimized = isMinimized ? 'true' : 'false';
+            if (isMinimized) {
+                windowEl.dataset.prevHeight = windowEl.style.height || `${windowEl.offsetHeight}px`;
+                const titlebarHeight = titlebar.offsetHeight || 0;
+                windowEl.style.height = `${titlebarHeight}px`;
+                content.style.display = 'none';
+                resizeHandles.forEach((handle) => {
+                    handle.style.display = 'none';
+                });
+            } else {
+                if (windowEl.dataset.prevHeight) {
+                    windowEl.style.height = windowEl.dataset.prevHeight;
+                }
+                content.style.display = '';
+                resizeHandles.forEach((handle) => {
+                    handle.style.display = '';
+                });
+            }
+            updateMinimizeIcon(isMinimized);
+        };
+
+        minimizeBtn.addEventListener('click', () => {
+            const isMinimized = windowEl.dataset.minimized === 'true';
+            setMinimized(!isMinimized);
+        });
+
+        setMinimized(Boolean(minimized));
+    },
+
+    /**
      * Setup close button functionality
      * @param {HTMLElement} windowEl - The window element
      * @param {Function} onClose - Callback when window is closed
@@ -219,3 +292,5 @@ const WindowManager = {
         this.activeWindow = null;
     }
 };
+
+export default WindowManager;
