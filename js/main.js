@@ -2,10 +2,21 @@
  * Main Application Entry Point
  */
 
+import DebugLogger from './debug-logger.js';
+import WindowManager from './window-manager.js';
+import PythonREPL from './python-repl.js';
+import TypeScriptREPL from './typescript-repl.js';
+import PythonEditor from './python-editor.js';
+import TypeScriptEditor from './typescript-editor.js';
+import PythonOutput from './python-output.js';
+import TypeScriptOutput from './typescript-output.js';
+
 const App = {
-    DESKTOP_MIN_WIDTH: 1024,
+    DESKTOP_MIN_WIDTH: 640,
     pythonWindowOpen: false,
     editorWindowOpen: false,
+    tsReplWindowOpen: false,
+    tsEditorWindowOpen: false,
 
     /**
      * Initialize the application
@@ -46,6 +57,8 @@ const App = {
     setupEventListeners() {
         const openPythonBtn = document.getElementById('open-python-btn');
         const openEditorBtn = document.getElementById('open-editor-btn');
+        const openTsReplBtn = document.getElementById('open-ts-repl-btn');
+        const openTsEditorBtn = document.getElementById('open-ts-editor-btn');
 
         openPythonBtn.addEventListener('click', () => {
             this.openPythonWindow();
@@ -53,6 +66,14 @@ const App = {
 
         openEditorBtn.addEventListener('click', () => {
             this.openEditorWindow();
+        });
+
+        openTsReplBtn.addEventListener('click', () => {
+            this.openTypeScriptReplWindow();
+        });
+
+        openTsEditorBtn.addEventListener('click', () => {
+            this.openTypeScriptEditorWindow();
         });
     },
 
@@ -127,6 +148,85 @@ const App = {
                         storageKey: 'pythonEditorCode',
                         onRun: async () => {
                             await PythonOutput.run(PythonEditor.getValue());
+                        }
+                    });
+                }, 0);
+            }
+        });
+    },
+
+    /**
+     * Open a TypeScript REPL window
+     */
+    openTypeScriptReplWindow() {
+        if (this.tsReplWindowOpen) {
+            return;
+        }
+
+        this.tsReplWindowOpen = true;
+        DebugLogger.log('Opening TypeScript REPL window...');
+
+        const btn = document.getElementById('open-ts-repl-btn');
+        btn.disabled = true;
+
+        WindowManager.createWindow({
+            title: 'TypeScript Console',
+            width: 700,
+            height: 450,
+            onClose: () => {
+                this.tsReplWindowOpen = false;
+                DebugLogger.log('TypeScript REPL window closed');
+                TypeScriptREPL.destroy();
+                btn.disabled = false;
+            },
+            onReady: async (container) => {
+                setTimeout(async () => {
+                    try {
+                        await TypeScriptREPL.init(container);
+                    } catch (error) {
+                        const message = error && error.message ? error.message : 'Failed to start TypeScript REPL';
+                        container.innerHTML = `<div class="terminal-loading"><span>${message}</span></div>`;
+                        DebugLogger.log(`TypeScript REPL init failed: ${message}`);
+                        btn.disabled = false;
+                        this.tsReplWindowOpen = false;
+                    }
+                }, 0);
+            }
+        });
+    },
+
+    /**
+     * Open a TypeScript editor window
+     */
+    openTypeScriptEditorWindow() {
+        if (this.tsEditorWindowOpen) {
+            return;
+        }
+
+        this.tsEditorWindowOpen = true;
+        DebugLogger.log('Opening TypeScript Editor window...');
+
+        const btn = document.getElementById('open-ts-editor-btn');
+        btn.disabled = true;
+
+        WindowManager.createWindow({
+            title: 'TypeScript Editor',
+            width: 800,
+            height: 500,
+            onClose: () => {
+                this.tsEditorWindowOpen = false;
+                DebugLogger.log('TypeScript Editor window closed');
+                TypeScriptEditor.destroy();
+                btn.disabled = false;
+            },
+            onReady: async (container) => {
+                setTimeout(() => {
+                    const defaultEditorText = `// Write TypeScript here\n`;
+                    TypeScriptEditor.init(container, {
+                        initialText: defaultEditorText,
+                        storageKey: 'typescriptEditorCode',
+                        onRun: async () => {
+                            await TypeScriptOutput.run(TypeScriptEditor.getValue());
                         }
                     });
                 }, 0);

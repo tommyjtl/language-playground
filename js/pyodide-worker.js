@@ -3,6 +3,8 @@
  * Loads and runs Pyodide in a separate thread
  */
 
+import { MessageType, StatusMessage, createStatusMessage, createReadyMessage, createErrorMessage, createDoneMessage } from './worker-messages.js';
+
 let pyodide = null;
 let pyconsole = null;
 let awaitFut = null;
@@ -13,11 +15,11 @@ async function loadPyodideInstance() {
     const indexURL = 'https://cdn.jsdelivr.net/pyodide/v0.27.5/full/';
 
     try {
-        self.postMessage({ type: 'status', message: 'Fetching pyodide.mjs...' });
+        self.postMessage(createStatusMessage(StatusMessage.FETCHING_PYODIDE));
 
         const { loadPyodide } = await import(indexURL + 'pyodide.mjs');
 
-        self.postMessage({ type: 'status', message: 'Initializing Python runtime...' });
+        self.postMessage(createStatusMessage(StatusMessage.INITIALIZING));
 
         pyodide = await loadPyodide({
             indexURL: indexURL,
@@ -50,15 +52,9 @@ await_fut
         `, { globals: namespace });
         namespace.destroy();
 
-        self.postMessage({
-            type: 'ready',
-            banner: BANNER
-        });
+        self.postMessage(createReadyMessage({ banner: BANNER }));
     } catch (error) {
-        self.postMessage({
-            type: 'error',
-            message: error.message
-        });
+        self.postMessage(createErrorMessage(error.message));
     }
 }
 
@@ -67,16 +63,13 @@ self.onmessage = async function (e) {
     const { type, data } = e.data;
 
     switch (type) {
-        case 'init':
+        case MessageType.INIT:
             await loadPyodideInstance();
             break;
 
         case 'execute':
             if (!pyodide || !pyconsole) {
-                self.postMessage({
-                    type: 'error',
-                    message: 'Pyodide not initialized'
-                });
+                self.postMessage(createErrorMessage('Pyodide not initialized'));
                 return;
             }
 
@@ -89,16 +82,13 @@ self.onmessage = async function (e) {
                     const fut = pyconsole.push(escaped);
 
                     self.postMessage({
-                        type: 'prompt',
+                        type: MessageType.PROMPT,
                         prompt: fut.syntax_check === 'incomplete' ? '... ' : '>>> '
                     });
 
                     switch (fut.syntax_check) {
                         case 'syntax-error':
-                            self.postMessage({
-                                type: 'error',
-                                message: fut.formatted_error.trimEnd()
-                            });
+                            self.postMessage(createErrorMessage(fut.formatted_error.trimEnd()));
                             continue;
 
                         case 'incomplete':
@@ -120,7 +110,7 @@ self.onmessage = async function (e) {
                                 separator: '\n<long output truncated>\n',
                             });
                             self.postMessage({
-                                type: 'output',
+                                type: MessageType.OUTPUT,
                                 message: output
                             });
                         }
@@ -130,10 +120,7 @@ self.onmessage = async function (e) {
                     } catch (e) {
                         if (e.constructor.name === 'PythonError') {
                             const message = fut.formatted_error || e.message;
-                            self.postMessage({
-                                type: 'error',
-                                message: message.trimEnd()
-                            });
+                            self.postMessage(createErrorMessage(message.trimEnd()));
                         } else {
                             throw e;
                         }
@@ -143,19 +130,16 @@ self.onmessage = async function (e) {
                     }
                 }
 
-                self.postMessage({ type: 'done' });
+                self.postMessage(createDoneMessage());
             } catch (error) {
-                self.postMessage({
-                    type: 'error',
-                    message: error.message
-                });
+                self.postMessage(createErrorMessage(error.message));
             }
             break;
 
-        case 'complete':
+        case MessageType.COMPLETE:
             if (!pyodide || !pyconsole) {
                 self.postMessage({
-                    type: 'completions',
+                    type: MessageType.COMPLETIONS,
                     completions: []
                 });
                 return;
@@ -165,12 +149,12 @@ self.onmessage = async function (e) {
                 const { command } = data;
                 const completions = pyconsole.complete(command).toJs()[0];
                 self.postMessage({
-                    type: 'completions',
+                    type: MessageType.COMPLETIONS,
                     completions: completions
                 });
             } catch (error) {
                 self.postMessage({
-                    type: 'completions',
+                    type: MessageType.COMPLETIONS,
                     completions: []
                 });
             }
@@ -180,7 +164,7 @@ self.onmessage = async function (e) {
             if (pyconsole && pyconsole.buffer) {
                 pyconsole.buffer.clear();
                 self.postMessage({
-                    type: 'interrupted'
+                    type: MessageType.INTERRUPTED
                 });
             }
             break;

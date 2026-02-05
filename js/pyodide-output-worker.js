@@ -3,6 +3,8 @@
  * Runs full Python scripts and streams stdout/stderr
  */
 
+import { MessageType, StatusMessage, createStatusMessage, createStreamMessage, createReadyMessage, createErrorMessage, createResultMessage, createDoneMessage } from './worker-messages.js';
+
 let pyodide = null;
 let runCode = null;
 
@@ -10,22 +12,22 @@ async function loadPyodideInstance() {
     const indexURL = 'https://cdn.jsdelivr.net/pyodide/v0.27.5/full/';
 
     try {
-        self.postMessage({ type: 'status', message: 'Fetching pyodide.mjs...' });
+        self.postMessage(createStatusMessage(StatusMessage.FETCHING_PYODIDE));
 
         const { loadPyodide } = await import(indexURL + 'pyodide.mjs');
 
-        self.postMessage({ type: 'status', message: 'Initializing Python runtime...' });
+        self.postMessage(createStatusMessage(StatusMessage.INITIALIZING));
 
         pyodide = await loadPyodide({
             indexURL: indexURL,
             stdout: (text) => {
                 if (text) {
-                    self.postMessage({ type: 'stream', stream: 'stdout', text });
+                    self.postMessage(createStreamMessage('stdout', text));
                 }
             },
             stderr: (text) => {
                 if (text) {
-                    self.postMessage({ type: 'stream', stream: 'stderr', text });
+                    self.postMessage(createStreamMessage('stderr', text));
                 }
             }
         });
@@ -105,14 +107,9 @@ def _run_code(code: str):
 
         runCode = pyodide.globals.get('_run_code');
 
-        self.postMessage({
-            type: 'ready'
-        });
+        self.postMessage(createReadyMessage());
     } catch (error) {
-        self.postMessage({
-            type: 'error',
-            message: error.message
-        });
+        self.postMessage(createErrorMessage(error.message));
     }
 }
 
@@ -120,16 +117,13 @@ self.onmessage = async function (e) {
     const { type, data } = e.data;
 
     switch (type) {
-        case 'init':
+        case MessageType.INIT:
             await loadPyodideInstance();
             break;
 
-        case 'run':
+        case MessageType.RUN:
             if (!pyodide || !runCode) {
-                self.postMessage({
-                    type: 'error',
-                    message: 'Python runtime not initialized'
-                });
+                self.postMessage(createErrorMessage(StatusMessage.NOT_INITIALIZED));
                 return;
             }
 
@@ -139,18 +133,14 @@ self.onmessage = async function (e) {
                 const [exitCode, exception] = result.toJs();
                 result.destroy();
 
-                self.postMessage({
-                    type: 'result',
+                self.postMessage(createResultMessage({
                     exception: exception || '',
                     exitCode: Number.isFinite(exitCode) ? exitCode : 0
-                });
+                }));
             } catch (error) {
-                self.postMessage({
-                    type: 'error',
-                    message: error.message
-                });
+                self.postMessage(createErrorMessage(error.message));
             } finally {
-                self.postMessage({ type: 'done' });
+                self.postMessage(createDoneMessage());
             }
             break;
     }

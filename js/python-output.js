@@ -2,6 +2,10 @@
  * Python Output - Runs full scripts via Web Worker and displays output
  */
 
+import DebugLogger from './debug-logger.js';
+import WindowManager from './window-manager.js';
+import KeyBindings from './keybindings.js';
+
 const PythonOutput = {
     worker: null,
     isReady: false,
@@ -189,7 +193,7 @@ const PythonOutput = {
                 this.clearBtn = clearBtn;
                 this.setStatus(this.currentStatus || 'Idle');
 
-                if (typeof KeyBindings !== 'undefined' && !this.keyBindings) {
+                if (!this.keyBindings) {
                     this.keyBindings = new KeyBindings(window);
                     this.keyBindings.add({
                         combo: ['Command+K', 'Ctrl+K'],
@@ -306,3 +310,5 @@ const PythonOutput = {
         this.clearBtn = null;
     }
 };
+
+export default PythonOutput;

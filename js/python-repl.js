@@ -2,6 +2,8 @@
  * Python REPL - Pyodide-powered Python terminal using Web Worker
  */
 
+import DebugLogger from './debug-logger.js';
+
 const PythonREPL = {
     worker: null,
     term: null,
@@ -174,3 +176,5 @@ const PythonREPL = {
         this.isLoaded = false;
     }
 };
+
+export default PythonREPL;

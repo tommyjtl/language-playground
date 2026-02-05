@@ -34,4 +34,4 @@ class CodeStorage {
     }
 }
 
-window.CodeStorage = CodeStorage;
+export default CodeStorage;

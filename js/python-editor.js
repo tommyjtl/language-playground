@@ -2,6 +2,10 @@
  * Python Editor - ACE editor embedded in window
  */
 
+import CodeStorage from './code-storage.js';
+import KeyBindings from './keybindings.js';
+import DebugLogger from './debug-logger.js';
+
 const PythonEditor = {
     editor: null,
     _onResize: null,
@@ -77,9 +81,7 @@ const PythonEditor = {
         // Disable Ace's default Ctrl/Cmd+L "goto line" prompt.
         this.editor.commands.removeCommand('gotoline');
 
-        if (typeof CodeStorage !== 'undefined') {
-            this.storage = new CodeStorage(storageKey);
-        }
+        this.storage = new CodeStorage(storageKey);
 
         let startingText = initialText;
         if (this.storage) {
@@ -108,23 +110,21 @@ const PythonEditor = {
         this.statusEl = statusEl;
         this.setStatus(onRun ? 'Ready' : 'Not ready');
 
-        if (typeof KeyBindings !== 'undefined') {
-            this.keyBindings = new KeyBindings(window);
-            this.keyBindings.add({
-                combo: ['Command+S', 'Ctrl+S'],
-                handler: () => this.toggleSaveToLocal(),
-                when: () => this.editor && this.editor.isFocused()
-            });
-            this.keyBindings.add({
-                combo: ['Command+R', 'Ctrl+R'],
-                handler: () => {
-                    if (onRun && !runBtn.disabled) {
-                        runBtn.click();
-                    }
-                },
-                when: () => this.editor && this.editor.isFocused()
-            });
-        }
+        this.keyBindings = new KeyBindings(window);
+        this.keyBindings.add({
+            combo: ['Command+S', 'Ctrl+S'],
+            handler: () => this.toggleSaveToLocal(),
+            when: () => this.editor && this.editor.isFocused()
+        });
+        this.keyBindings.add({
+            combo: ['Command+R', 'Ctrl+R'],
+            handler: () => {
+                if (onRun && !runBtn.disabled) {
+                    runBtn.click();
+                }
+            },
+            when: () => this.editor && this.editor.isFocused()
+        });
 
         saveBtn.addEventListener('click', () => {
             this.toggleSaveToLocal();
@@ -242,3 +242,5 @@ const PythonEditor = {
         }
     }
 };
+
+export default PythonEditor;
