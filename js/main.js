@@ -4,12 +4,14 @@
 
 import DebugLogger from './debug-logger.js';
 import WindowManager from './window-manager.js';
-import PythonREPL from './python-repl.js';
-import TypeScriptREPL from './typescript-repl.js';
-import PythonEditor from './python-editor.js';
-import TypeScriptEditor from './typescript-editor.js';
-import PythonOutput from './python-output.js';
-import TypeScriptOutput from './typescript-output.js';
+
+import PythonREPL from './pydiode/python-repl.js';
+import PythonEditor from './pydiode/python-editor.js';
+import PythonOutput from './pydiode/python-output.js';
+
+import TypeScriptREPL from './typescript/typescript-repl.js';
+import TypeScriptEditor from './typescript/typescript-editor.js';
+import TypeScriptOutput from './typescript/typescript-output.js';
 
 const App = {
     DESKTOP_MIN_WIDTH: 640,
