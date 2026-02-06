@@ -30,8 +30,11 @@ const App = {
         this.checkDesktop();
         this.setupEventListeners();
 
-        // Re-check on resize
-        window.addEventListener('resize', () => this.checkDesktop());
+        // Re-check on resize and adjust window positions
+        window.addEventListener('resize', () => {
+            this.checkDesktop();
+            WindowManager.adjustWindowBoundaries();
+        });
     },
 
     /**
