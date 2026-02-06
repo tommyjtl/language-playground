@@ -290,6 +290,39 @@ const WindowManager = {
         const container = document.getElementById('window-container');
         container.innerHTML = '';
         this.activeWindow = null;
+    },
+
+    /**
+     * Adjust all windows to stay within viewport boundaries
+     * Called when window is resized
+     */
+    adjustWindowBoundaries() {
+        const container = document.getElementById('window-container');
+        const windows = container.querySelectorAll('.window');
+
+        windows.forEach(windowEl => {
+            let left = windowEl.offsetLeft;
+            let top = windowEl.offsetTop;
+            const width = windowEl.offsetWidth;
+            const height = windowEl.offsetHeight;
+
+            // Adjust horizontal position
+            if (left + width > window.innerWidth) {
+                left = Math.max(0, window.innerWidth - width - 16);
+            }
+
+            // Adjust vertical position
+            if (top + height > window.innerHeight) {
+                top = Math.max(0, window.innerHeight - height - 16);
+            }
+
+            // Ensure window is not off the left or top edge
+            left = Math.max(0, left);
+            top = Math.max(0, top);
+
+            windowEl.style.left = `${left}px`;
+            windowEl.style.top = `${top}px`;
+        });
     }
 };
 
