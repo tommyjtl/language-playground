@@ -14,7 +14,13 @@ Default URL: `http://127.0.0.1:5500`
 
 ## To-do
 
-- [ ] Add Python examples
-- [ ] Add TypeScript examples
+- [ ] **Python**
+    - [ ] Add Python examples
+    - [ ] Option to load minimal or full version. We may need to provide an interface to load selected modules listed [here](https://pyodide.org/en/stable/usage/downloading-and-deploying.html#additional-files-in-pyodide-0-29-3-tar-bz2). One option could be `micropip`.
+    - [ ] Stating which modules are [supported](https://pyodide.org/en/stable/usage/wasm-constraints.html) in this WASM version
+- [ ] **TypeScript**
+    - [ ] Add TypeScript examples
+    - [ ] Compile error for TypeScript editor
+    - [ ] `fetch` not working in async/await example ([example API endpoint](https://sampleapis.com/api-list/beers))
 - [x] Use local build instead of fetching remote Pydiode resources
 - [x] Detect window resize and push the windows that exceeds the boundary to the edge accordingly.
