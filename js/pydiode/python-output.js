@@ -14,6 +14,8 @@ const PythonOutput = {
     outputEl: null,
     statusEl: null,
     clearBtn: null,
+    wrapCheckbox: null,
+    wrapEnabled: true,
     currentStatus: 'Idle',
     _onStatus: null,
     _runResolve: null,
@@ -115,6 +117,9 @@ const PythonOutput = {
      * @param {string} code - Python source code
      */
     async run(code) {
+        this.ensureWindow();
+        WindowManager.focusWindow(this.outputWindow);
+
         if (this._needsInit || !this.worker) {
             await this.init();
         }
@@ -123,7 +128,6 @@ const PythonOutput = {
         }
 
         this.isRunning = true;
-        this.ensureWindow();
         this.clear();
         this.setStatus('Running...');
 
@@ -177,7 +181,25 @@ const PythonOutput = {
                 clearBtn.textContent = 'Clear';
                 clearBtn.addEventListener('click', () => this.clear());
 
+                const wrapLabel = document.createElement('label');
+                wrapLabel.className = 'output-wrap-toggle';
+
+                const wrapCheckbox = document.createElement('input');
+                wrapCheckbox.type = 'checkbox';
+                wrapCheckbox.className = 'output-wrap-checkbox';
+                wrapCheckbox.addEventListener('change', (event) => {
+                    this.wrapEnabled = Boolean(event.target && event.target.checked);
+                    this.applyWrapSetting();
+                });
+
+                const wrapText = document.createElement('span');
+                wrapText.textContent = 'Wrap text';
+
+                wrapLabel.appendChild(wrapCheckbox);
+                wrapLabel.appendChild(wrapText);
+
                 leftGroup.appendChild(clearBtn);
+                leftGroup.appendChild(wrapLabel);
                 toolbar.appendChild(leftGroup);
                 toolbar.appendChild(status);
 
@@ -191,7 +213,9 @@ const PythonOutput = {
                 this.outputEl = output;
                 this.statusEl = status;
                 this.clearBtn = clearBtn;
+                this.wrapCheckbox = wrapCheckbox;
                 this.setStatus(this.currentStatus || 'Idle');
+                this.applyWrapSetting();
 
                 if (!this.keyBindings) {
                     this.keyBindings = new KeyBindings(window);
@@ -258,6 +282,17 @@ const PythonOutput = {
         }
     },
 
+    applyWrapSetting() {
+        if (this.wrapCheckbox) {
+            this.wrapCheckbox.checked = this.wrapEnabled;
+        }
+        if (!this.outputEl) {
+            return;
+        }
+        this.outputEl.classList.toggle('wrap-enabled', this.wrapEnabled);
+        this.outputEl.classList.toggle('wrap-disabled', !this.wrapEnabled);
+    },
+
     /**
      * Set status text
      * @param {string} status
@@ -308,6 +343,7 @@ const PythonOutput = {
             this.keyBindings = null;
         }
         this.clearBtn = null;
+        this.wrapCheckbox = null;
     }
 };
 

@@ -127,6 +127,22 @@ pre,
     background: #ffffff;
 }
 
+.output-wrap-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #000;
+    cursor: pointer;
+    user-select: none;
+}
+
+.output-wrap-checkbox {
+    margin: 0;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
 .editor-status {
     display: flex;
     align-items: center;
@@ -256,7 +272,16 @@ pre,
     padding: 10px;
     font-family: "Google Sans Code", monospace;
     font-size: 12px;
+}
+
+.output-log.wrap-enabled {
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.output-log.wrap-disabled {
+    white-space: pre;
 }
 
 .output-line {
@@ -273,7 +298,17 @@ pre,
 }
 
 .output-chunk {
+    white-space: inherit;
+}
+
+.output-log.wrap-enabled .output-chunk {
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.output-log.wrap-disabled .output-chunk {
+    white-space: pre;
 }
 
 /* Resize Handles */
