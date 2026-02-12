@@ -293,6 +293,18 @@ const WindowManager = {
     },
 
     /**
+     * Bring a window to the front
+     * @param {HTMLElement | null} windowEl - Window element to focus
+     */
+    focusWindow(windowEl) {
+        if (!windowEl || !windowEl.isConnected) {
+            return;
+        }
+        this.activeWindow = windowEl;
+        windowEl.style.zIndex = 1000 + (++this.windowCount);
+    },
+
+    /**
      * Adjust all windows to stay within viewport boundaries
      * Called when window is resized
      */
