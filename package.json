@@ -2,12 +2,12 @@
     "name": "language-playground",
     "private": true,
     "scripts": {
-        "dev": "nodemon",
+        "dev": "browser-sync start --server --files \"index.html,css/**/*.css,js/**/*.js,scripts/**/*.mjs\" --host 127.0.0.1 --port 5500 --no-ui --no-notify",
         "test:e2e": "playwright test",
         "test:e2e:ui": "playwright test --ui"
     },
     "devDependencies": {
         "@playwright/test": "^1.0.0",
-        "nodemon": "^3.1.10"
+        "browser-sync": "^3.0.4"
     }
 }
