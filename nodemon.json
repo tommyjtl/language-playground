@@ -1,0 +1,14 @@
+{
+    "watch": [
+        "index.html",
+        "css",
+        "js",
+        "scripts"
+    ],
+    "ext": "html,css,js,mjs,json",
+    "ignore": [
+        "node_modules",
+        ".git"
+    ],
+    "exec": "node scripts/dev-server.mjs"
+}

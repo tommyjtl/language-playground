@@ -12,12 +12,14 @@ let reprShorten = null;
 
 // Load Pyodide
 async function loadPyodideInstance() {
-    const indexURL = 'https://cdn.jsdelivr.net/pyodide/v0.27.5/full/';
+    const indexURL = new URL('../vendor/pyodide/', import.meta.url).href;
+    const pyodideModuleURL = new URL('../vendor/pyodide/pyodide.mjs', import.meta.url).href;
 
     try {
+        self.postMessage(createStatusMessage(`Loading from local indexURL: ${indexURL}`));
         self.postMessage(createStatusMessage(StatusMessage.FETCHING_PYODIDE));
 
-        const { loadPyodide } = await import(indexURL + 'pyodide.mjs');
+        const { loadPyodide } = await import(pyodideModuleURL);
 
         self.postMessage(createStatusMessage(StatusMessage.INITIALIZING));
 
@@ -26,6 +28,22 @@ async function loadPyodideInstance() {
             stdin: () => {
                 // We can't use prompt() in a worker, so we'll handle this differently
                 return '';
+            },
+            stdout: (text) => {
+                if (text) {
+                    self.postMessage({
+                        type: MessageType.OUTPUT,
+                        message: text
+                    });
+                }
+            },
+            stderr: (text) => {
+                if (text) {
+                    self.postMessage({
+                        type: MessageType.OUTPUT,
+                        message: text
+                    });
+                }
             }
         });
 
