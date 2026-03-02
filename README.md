@@ -20,7 +20,11 @@ Default URL: `http://127.0.0.1:5500`
     - [ ] Stating which modules are [supported](https://pyodide.org/en/stable/usage/wasm-constraints.html) in this WASM version
 - [ ] **TypeScript**
     - [ ] Add TypeScript examples
+        - basic DSA examples?
+        - Promise
+        - JSX examples?
     - [ ] Compile error for TypeScript editor
     - [ ] `fetch` not working in async/await example ([example API endpoint](https://sampleapis.com/api-list/beers))
+    - [ ] `console.clear()` or `table()` is not supported (thought is printed in the console nevertheless)
 - [x] Use local build instead of fetching remote Pydiode resources
 - [x] Detect window resize and push the windows that exceeds the boundary to the edge accordingly.
